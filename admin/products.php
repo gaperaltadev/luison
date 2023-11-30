@@ -3,7 +3,7 @@
 
     error_reporting(E_ALL);
 
-    if(!isset($_SESSION['crisdaSession'])){
+    if(!isset($_SESSION['barberSession'])){
         header('Location: index.php');
     }
     
@@ -87,7 +87,7 @@
 
 <html>
     <head>
-        <title>Crisda Admin</title>
+        <title>Luison Admin</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="../css/simple-line-icons.min.css">
@@ -347,7 +347,7 @@
 
             <div class="logo">
                 <img src="../img/logo.gif" />
-                <h3>CRISDA</h3>
+                <h3>Luison Barber</h3>
             </div>
 
             <div style="position: absolute; top: 20px; right: 20px; z-index: 1;">
@@ -355,6 +355,7 @@
             </div>
 
             <ul class="menu">
+                <li><a href="scheduling.php">Agendamientos</a></li>
                 <li class="active"><a href="products.php">Productos</a></li>
                 <li><a href="categories.php">Categorias</a></li>
             </ul> 

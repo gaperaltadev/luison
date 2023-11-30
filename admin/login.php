@@ -4,9 +4,9 @@
     if(isset($_POST) AND isset($_POST['action'])){
         
         if($_POST['action'] == 'login'){
-            if($_POST['user'] == 'crisdadmin' AND $_POST['pwd'] == 'CrisdaPass234'){
-                $_SESSION['crisdaSession'] = 1;
-                header('Location: products.php');
+            if($_POST['user'] == 'admin' AND $_POST['pwd'] == 'Asuncion2023'){
+                $_SESSION['barberSession'] = 1;
+                header('Location: scheduling.php');
             }else{
                 header('Location: login.php?error=1');
             }
@@ -18,7 +18,7 @@
 
 <html>
     <head>
-        <title>Crisda Admin</title>
+        <title>Luison Admin</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="../css/simple-line-icons.min.css">
@@ -43,7 +43,6 @@
             * { margin: 0 auto; padding: 0; box-sizing: border-box }
 
             html{
-                background-color: aliceblue;
                 font-family: regular;
             }
 
@@ -102,8 +101,8 @@
     <body>  
 
             <div class="logo">
-                <img src="../img/logo.gif" />
-                <h3>CRISDA</h3>
+                <img src="../img/Logo.jpg" />
+                <h3>Luison Barber</h3>
             </div>
 
 

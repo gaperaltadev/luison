@@ -1,7 +1,7 @@
 <?php session_start(); ?>
 <?php
 
-    if(!isset($_SESSION['crisdaSession'])){
+    if(!isset($_SESSION['barberSession'])){
         header('Location: index.php');
     }
     
@@ -19,7 +19,9 @@
         if($_POST['action'] == 'add'){
             
             $name = $_POST['name'];
-            $category_insert = mysqli_query($conn, "INSERT INTO categories(name) VALUES ('".$name."') ");
+            $name = $_POST['description'];
+
+            $category_insert = mysqli_query($conn, "INSERT INTO categories(name) VALUES ('".$name."', '".$description."') ");
             header('Location: categories.php');
 
         }
@@ -28,7 +30,16 @@
             
             $id = $_POST['id'];
             $name = $_POST['name'];
-            $category_insert = mysqli_query($conn, "UPDATE categories SET name='".$name."' WHERE id = ".$id);
+            $category_update = mysqli_query($conn, "UPDATE categories SET name='".$name."' WHERE id = ".$id);
+            header('Location: categories.php');
+            
+        }
+
+        if($_POST['action'] == 'delete'){
+            
+            $id = $_POST['id'];
+
+            $delete_category = mysqli_query($conn, 'DELETE FROM categories WHERE id='.$id);
             header('Location: categories.php');
             
         }
@@ -39,7 +50,7 @@
 
 <html>
     <head>
-        <title>Crisda Admin</title>
+        <title>Luison Admin</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="../css/simple-line-icons.min.css">
@@ -200,6 +211,8 @@
                         <input name="action" value="add" type="hidden" />
                         <label for="name">Nombre de la categoria</label>
                         <input required id="name" name="name" type="text" />
+                        <label for="name">Descripción</label>
+                        <textarea required id="description" name="description" ></textarea>
                         <button type="submit">Guardar</button>
                         <p class="close-modal" style="cursor: pointer;">Cancelar</p>
                     </form>
@@ -214,6 +227,8 @@
                         <input name="id" value="" type="hidden" />
                         <label for="name">Nombre de la categoria</label>
                         <input required id="name" name="name" type="text" />
+                        <label for="name">Descripcion</label>
+                        <textarea required id="description" name="description"></textarea>
                         <button type="submit">Guardar</button>
                         <p class="close-modal" style="cursor: pointer;">Cancelar</p>
                     </form>
@@ -221,8 +236,8 @@
             </div>
 
             <div class="logo">
-                <img src="../img/logo.gif" />
-                <h3>CRISDA</h3>
+                <img src="../img/Logo.jpg" />
+                <h3>Luison Barber</h3>
             </div>
 
             <div style="position: absolute; top: 20px; right: 20px; z-index: 1;">
@@ -230,8 +245,10 @@
             </div>
 
             <ul class="menu">
+                <li><a href="scheduling.php">Agendamientos</a></li>
                 <li><a href="products.php">Productos</a></li>
                 <li class="active"><a href="categories.php">Categorias</a></li>
+                <li><a href="subcategories.php">Sub Categorias</a></li>
             </ul> 
 
             <div class="container">
@@ -241,6 +258,7 @@
                     <thead>
                         <tr>
                             <th style="border-radius: 15px 0 0 0;">Id</th>
+                            <th>Nombre</th>
                             <th>Descripcion</th>
                             <th style="border-radius: 0 15px 0 0;">Accion</th>
                         </tr>
@@ -250,16 +268,20 @@
                         <?php while($category = mysqli_fetch_object($categories)){ ?>
                             
                             <tr>
-                                <td><?=$category->id?></td>
-                                <td class="category-name"><?=$category->name?></td>
-                                <td style="text-align:center"><button data-id="<?=$category->id?>" class="edit-cat">Editar</button><button data-id="<?=$category->id?>" style="display: none;" class="delete">Borrar</button></td>
+                                <td style='border: 1px solid gray'><?=$category->id?></td>
+                                <td style='border: 1px solid gray' class="category-name"><?=$category->name?></td>
+                                <td style='border: 1px solid gray' class="category-description"><?=$category->description?></td>
+                                <td style="text-align:center; border: 1px solid gray;">
+                                    <button data-id="<?=$category->id?>" class="edit-cat">Editar</button>
+                                    <form action="" method="POST"><input type="hidden" name="action" value="delete" /><input type="hidden" name="id" value="<?=$category->id?>" /><button data-id="<?=$category->id?>" class="delete">Borrar</button></form>
+                                </td>
                             </tr>
 
                         <?php } ?>
                         
                         <?php if($categories->num_rows <= 0){ ?>
                             <tr>
-                                <td colspan="3">Sin registros (0)</td>
+                                <td style='padding: 20px 0; font-weight: bold;' colspan="4">Sin registros (0)</td>
                             </tr>
                         <?php } ?>
                     </tbody>

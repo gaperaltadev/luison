@@ -20,6 +20,25 @@
 
     $products = mysqli_query($conn, "SELECT * FROM products");
     $categories = mysqli_query($conn, "SELECT * FROM categories");
+    $shifts = mysqli_query($conn, "SELECT * FROM shifts");
+
+    if(isset($_POST) AND isset($_POST['client'])){
+        $client = $_POST['client'];
+        $phone = $_POST['phone'];
+        $dateFrom = $_POST['dateFrom'];
+        $dateTo = $_POST['dateTo'];
+
+        $count = mysqli_query($conn, "SELECT COUNT(*) FROM shifts WHERE dateFrom = '".$dateFrom."'");
+
+        if($count->num_rows > 0){
+            header("Location: index.php?err=slotunavailable");
+        }else{
+
+            
+            mysqli_query($conn, "INSERT INTO shifts (client, phone, dateFrom, dateTo) VALUES ('".$client."', '".$phone."', '".$dateFrom."', '".$dateTo."')")or die(mysqli_error($conn));
+            
+        }
+    }
 
 ?>
 
@@ -28,348 +47,133 @@
     <head>
         <title>Luison Barber</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
         <link rel="stylesheet" type="text/css" href="./vendors/fullPage.js-master/dist/fullpage.css" />
+        <link rel="stylesheet" type="text/css" href="./css/index.css">
+
         <link rel="stylesheet" href="./css/simple-line-icons.min.css">
-        <link rel="icon" href="./img/logo.gif">
-        
-        
-        <style type="text/css">
-            
-            @font-face {
-                font-family: regular;
-                src: url(./fonts/Montserrat/static/Montserrat-Regular.ttf);
-            }
-            
-            @font-face {
-                font-family: light;
-                src: url(./fonts/Montserrat/static/Montserrat-Light.ttf);
-            }
+        <link rel="icon" href="./img/loading.gif">
 
-            @font-face {
-                font-family: bold;
-                src: url(./fonts/Montserrat/static/Montserrat-Bold.ttf);
-            }
-            
-            @font-face {
-                font-family: logo;
-                src: url(./fonts/Alinore.otf);
-            }
-            
-            * {
-                margin: 0 auto;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: light;
-            }
-            
-            html, body{
-                color: black;
-                background-color: white;
-            }
-            
-            a {
-                font-weight: bold;
-                color: black;
-                text-decoration: none;
-            }
-            
-            h2 {
-                text-align: center;
-            }
-            
-            button, select{
-                background-color:  black;
-                border: none;
-                color: white;
-                padding: 7px;
-                border-radius: 20px;
-                cursor: pointer;
-                padding-left: 15px;
-                padding-right: 15px;
-                font-size: 13px;
-            }
-            
-            input, textarea{
-                margin: 5px;
-                border-radius: 10px;
-                border: none;
-                padding: 10px;
-                box-shadow: 0 .1em 4px gray;
-            }
-            
-            header{
-                width: 100%;
-                display: flex;
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 9;
-            }
-            
-            header .logo{
-                margin-top: 15px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            header .logo h3 {
-                font-family: logo;
-                font-size: 40px;
-            }
-            
-            header .logo img{
-                width: 70px;
-                position: relative;
-                right: -25px;
-            }
-            
-            header .menu ul
-            {
-                list-style: none;
-            }
-            
-            header .menu ul li:not(.cart-popup li) {
-                display: inline-block;
-                padding: 15px;
-                cursor: pointer;
-            }
-            
-            .mobile-menu-icon {
-                display: none !important;
-            }
-            
-            .video-shade {
-                width: 100%;
-                height: 100%;
-                background-color: rgba(255,255,255,0.3);
-                position: absolute;
-                z-index: 9;
-                top: 0;
-                left: 0;
-            }
-            
-            .products{
-                min-height: 350px;
-                width: 100%;
-                margin: 20px;
-                list-style: none;
-                overflow: scroll;
-                white-space: nowrap;
-            }
-            
-            .products-top{
-                display: flex;
-                flex-direction: row;
-            }
-            
-            .products-filter{
-                margin: 0;
-            }
-            
-            .products li{
-                text-align: center;
-                width: 170px;
-                background-color: lightgray;
-                padding: 20px;
-                border-radius: 20px;
-                display: none; 
-                margin: 7px;
-            }
+        <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
+        <script src="
+https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.9/index.global.min.js
+"></script>
 
-            .product-image{
-                height: 170px;
-                background-color: darkgray;
-            }
-            
-            #myVideo {
-                position: absolute;
-                right: 0;
-                bottom: 0;
-                min-width: 100%;
-                min-height: 100%;
-            }
+    <script type="text/javascript" src="./js/jquery-3.7.0.min.js"></script>
 
-            .fp-is-overflow .fp-overflow.fp-auto-height-responsive, .fp-is-overflow .fp-overflow.fp-auto-height, .fp-is-overflow > .fp-overflow {
-                width: 90%;
-                overflow-y: hidden;
-                overflow-x: hidden;
-            }
-            
-            .arrow{
-                font-size: 30px;
-                cursor: pointer;
-            }
-            
-            .mobile-menu {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                list-style: none;
-                text-align: center;
-                width: 100%;
-                height: 200px;
-                background-color: aliceblue;
-                position: fixed;
-                bottom: -200px;
-                left: 0;
-                z-index: 99;
-                border-radius: 20px 20px 0 0;
-                box-shadow: 0 .1em 4px gray;
-            }
-            
-            .mobile-menu li {
-                margin: 10px;
-            }
-            
-            @media screen and (max-width: 768px){
-                .menu-to-hide{
-                    display: none !important;
-                }
+    <?php if (isset($_GET['err']) AND $_GET['err'] == 'slotunavailable'){ ?> 
+        <script>alert('Lo sentimos, este horario ya se encuentra reservado');</script> 
+    <?php } ?>
+
+    <script>
+
+        var events = [];
+
+        <?php while ($shift=mysqli_fetch_object($shifts)){ ?>
+            events.push({ id: <?=$shift->id?>, title: '<?=$shift->client?>', start: '<?=$shift->dateFrom?>', end: '<?=$shift->dateTo?>', phone: <?=$shift->phone?>  });
+        <?php } ?>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'es',
+            slotDuration: "01:00:00",
+            selectable: true,
+            initialView: 'timeGridWeek',
+            hiddenDays: [0],
+            allDaySlot: false,
+            slotMinTime: "08:00:00",
+            slotMaxTime: "18:00:00",
+            expandRows: true,
+            select: function(d) { 
+                // Seleccionamos el Modal
+                let modal = document.getElementById('calendar-modal-container');
+                // Hacemos visible el modal
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                console.log({d})
+                // Close modal when clicking outside of it
+                window.addEventListener('click', function (event) {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                        $('#phone').removeAttr('readonly').val('');
+                        $('#client').removeAttr('readonly').val('');
+                    }
+                });
+
+
+                $("#fromDate").val(d.startStr.substr(0, 16));
+                $("#toDate").val(d.endStr.substr(0, 16));
+
+                // Le damos transicion
+                setTimeout(function() {
+                    modal.style.opacity = 1;
+                }, 100);
+            },
+            eventClick: function(eventInfo) {
+                // Seleccionamos el Modal
+                let modal = document.getElementById('calendar-modal-container');
+                // Hacemos visible el modal
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
                 
-                .mobile-menu-icon { 
-                    display: inline-block !important;
-                }
-                
-                .contact-container{
-                    flex-direction: column !important;
-                }
+                // Close modal when clicking outside of it
+                window.addEventListener('click', function (event) {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                        $('#phone').removeAttr('readonly').val('');
+                        $('#client').removeAttr('readonly').val('');
+                    }
+                });
 
-                #map {
-                    display: none;
-                }
+                console.log({eventInfo});
                 
-                .menu ul {
-                    margin-top: 20px;
-                }
-                
-            }
+                $('#client').attr("readonly", true).val(eventInfo.event._def.title);
+                $('#phone').attr("readonly", true).val(eventInfo.event._def.extendedProps.phone);
 
-            ::-webkit-scrollbar {
-            opacity: 1;
-        }
-        
-        .close-mobile-menu{
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 22px;
-            cursor:pointer;
-            font-family: regular;
-        }
-        
-        .cart-popup{
-            text-align: center;
-            display: none;
-            width: 200px;
-            border-radius: 20px;
-            position: absolute;
-            z-index: 99;
-            background-color: white;
-            left: -140;
-            top:50;
-            box-shadow: 0 .2em 6px gray;
-        }
-        
-        .cart-popup li:not(.cart-total){
-            display: flex !important;
-            flex-direction: row;
-            padding: 10px !important;
-            text-align: left;
-        }
-        
-        .cart-total{
-            display: none;
-        }
-        
-        #map {
-            width: 300px;
-            height: 300px;
-            background-color: lightgray;
-        }
-        
-        .product-modal{
-            width: 100%;
-            height: 80%;
-            background-color: aliceblue;
-            position: fixed;
-            left: 0;
-            bottom: -100%;
-            z-index: 99;
-            box-shadow: 0 .2em 7px gray;
-            border-radius: 30px 30px 0 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .product-modal .product-image-modal{
-            width: 200px;
-            height: 300px;
-            background-color: gray;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-        
-        .close-product-modal{
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-family: bold;
-            font-size: 26px;
-            cursor: pointer;
-        }
-        
-        </style>
-    
+                $("#fromDate").val(eventInfo.event.startStr.substr(0, 16));
+                $("#toDate").val(eventInfo.event.endStr.substr(0, 16));
+
+                // Le damos transicion
+                setTimeout(function() {
+                    modal.style.opacity = 1;
+                }, 100);
+            },
+            events: events
+            });
+            calendar.render();
+        });
+
+        $(document).ready(function() {
+            $('.close-modal').on('click', function() {
+                $('#calendar-modal-container').fadeOut();
+            });
+        });
+
+    </script>
 </head>
 
 
 <body>
-    
-        <div class="product-modal">
-            <p class="close-product-modal">X</p>
-            <div class="product-image-modal"></div>
-            <h3 class="product-modal-title" style="text-transform: uppercase; font-weight: 800; font-family: bold; margin: 10px auto;">Estante</h3>
-            <p class="product-modal-description" style="text-align:center;">Nuestra misión es ofrecer soluciones metalúrgicas de vanguardia que superen las expectativas e impulsen el progreso en todo el mundo.</p>
-            <h3 class="product-modal-price" style="font-size: 18px;text-transform: uppercase; font-weight: 800; font-family: bold; margin: 10px auto;">200.000 Gs</h3>
-        </div>
-        
-        <div id='loading-screen' style='display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; position: fixed;background-color: white; height:100%; width:100%; overflow:hidden; top:0; left:0;'>
-            <img src="./img/logo.gif" />
-            <h1 style="font-family: regular;">Cargando...</h1>
-        </div>
-        
+
         <header>
             <div class="logo">
-                <img src="./img/logo.gif" />
+                <img src="./img/loading.gif" />
                 <h3>&nbsp;Luison Barber</h3>
             </div>
             <div class="menu">
                 <ul>
                     <li class="menu-to-hide"><a href="#firstPage">Inicio</a></li>
                     <li class="menu-to-hide"><a href="#secondPage">Productos</a></li>
-                    <li class="menu-to-hide"><a href="#thirdPage">Nosotros</a></li>
-                    <li class="menu-to-hide"><a href="#fourthPage">Contacto</a></li>
+                    <li class="menu-to-hide"><a href="#thirdPage">Agendamiento</a></li>
+                    <li class="menu-to-hide"><a href="#fourthPage">Nosotros</a></li>
+                    <li class="menu-to-hide"><a href="#fifthPage">Contacto</a></li>
                     <li class="open-cart" style="position: relative;">
                         <span class="icon-basket"></span>
                         
                         <ul class="cart-popup">
-
-                            <!-- <li>
-                                <div class="cart-product-img" style="width: 50px; height: 50px; background-color: gray;margin: 3px;margin-right: 6px;"></div>
-                                <div style="margin: 0;">
-                                    <h4>Estante</h4>
-                                    <p style="font-size: 13px;">200.000 Gs</p>
-                                    <p style="font-size: 13px;">Cantidad: 2</p>
-                                </div>
-                                <div style="margin: 0;">
-                                    <span class="icon-trash deleteProduct" style="font-size: 22px; position: relative; left: 15px; top: 15px;"></span>
-                                </div>
-                            </li> -->
-
 
                             <li class="cart-empty">
                                 <p>Sin productos (0)</p>
@@ -378,8 +182,7 @@
                             <li class="cart-total">
                                 <h4 style="margin: 10px auto;">Total: <span style="font-family: light !important;">0 Gs</span></h4>
                             </li>
-
-                                
+        
                             <button class="sendOrder" style="background-color: green;display: none;">Realizar pedido</button>
                             <h4 class="close-cart-popup" style="margin: 7px;text-align: center;">Cerrar</h4>
                             </ul>
@@ -390,20 +193,50 @@
             </div>
         </header>
 
+        <div id='calendar-modal-container'>
+            <div id='calendar-modal-content'>
+                <h3>Agendamiento</h3>
+                <form method='post' action="" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <Label for="client">Nombre completo:</Label>
+                    <input type="text" id="client" name="client" />
+                    <label for="phone">Telefono:</label>
+                    <input type="text" id="phone" name="phone" />
+                    <label for="fromDate">Fecha desde: </label>
+                    <input type="datetime-local" readonly name="dateFrom" id="fromDate" />
+                    <label for="toDate">Fecha hasta: </label>
+                    <input type="datetime-local" readonly name="dateTo" id="toDate" />
+                    <button type='submit' > Agendar </button>
+                    <button type='button' style="background-color: gray; margin: 7px;" class="close-modal" > Cerrar </button>
+                </form>
+            </div>
+        </div>
+    
+        <div class="product-modal">
+            <p class="close-product-modal">X</p>
+            <div class="product-image-modal"></div>
+            <h3 class="product-modal-title" style="text-transform: uppercase; font-weight: 800; font-family: bold; margin: 10px auto;">Estante</h3>
+            <p class="product-modal-description" style="text-align:center;">Nuestra misión es ofrecer soluciones metalúrgicas de vanguardia que superen las expectativas e impulsen el progreso en todo el mundo.</p>
+            <h3 class="product-modal-price" style="font-size: 18px;text-transform: uppercase; font-weight: 800; font-family: bold; margin: 10px auto;">200.000 Gs</h3>
+        </div>
+        
+        <div id='loading-screen' style='display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; position: fixed;background-color: white; height:100%; width:100%; overflow:hidden; top:0; left:0;'>
+            <img src="./img/loading.gif" />
+            <h1 style="font-family: regular;">Cargando...</h1>
+        </div>
+
         <ul class="mobile-menu">
             <p class="close-mobile-menu">X</p>
             <li><a href="#firstPage">Inicio</a></li>
             <li><a href="#secondPage">Productos</a></li>
-            <li><a href="#thirdPage">Nosotros</a></li>
-            <li><a href="#fourthPage">Contacto</a></li>
+            <li><a href="#thirdPage">Agendamiento</a></li>
+            <li><a href="#fourthPage">Nosotros</a></li>
+            <li><a href="#fifthPage">Contacto</a></li>
         </ul>
-
-        
 
         <div id="fullpage">       
             
             <div class="section">
-                <h1 style="font-size:45px;font-family:logo; top: 400px;position:absolute;z-index:999;">
+                <h1 style="font-size:45px;font-family:logo; top: 400px;position:absolute;z-index:999; left: 100px;">
                 Estilo que habla por sí mismo, <br>
                 en cada corte y afeitado.</h1>
                 <video autoplay muted loop id="myVideo">
@@ -443,35 +276,17 @@
                             <?php } ?>
 
                             <li class="no-products" style="margin: 7px auto;">Sin productos (0)</li>
-
-                        <!-- <li data-id="2" data-cat="1">
-                            <div class="product-image" style="background-position: center center; background-repeat: no-repeat; background-size: cover; background-image: url(./resources/photos/silla.jpg);"></div>
-                            <h3 class="product-title">Silla</h3>
-                            <p class="product-price">150.000 Gs</p>
-                            <div style="display: flex; flex-direction: row; justify-content: center; align-items:center;">
-                                <span style="margin: 0; cursor: pointer;" class="qty-remove icon-minus"></span>
-                                <input readonly style="cursor: inherit; width: 30%; font-family: regular;height: 30px;text-align: center;" type="text" value="1" name="qty" min="1" />
-                                <span style="margin: 0; cursor: pointer;" class="qty-add icon-plus"></span>
-                            </div>
-                            <button class="add-to-cart" style="margin-left: -6px;">Agregar al carrito</button>
-                        </li>
-
-                        <li data-id="3" data-cat="1">
-                            <div class="product-image" style="background-position: center center; background-repeat: no-repeat; background-size: cover; background-image: url(./resources/photos/ropero.jpg);"></div>
-                            <h3 class="product-title">Ropero</h3>
-                            <p class="product-price">500.000 Gs</p>
-                            <div style="display: flex; flex-direction: row; justify-content: center; align-items:center;">
-                                <span style="margin: 0; cursor: pointer;" class="qty-remove icon-minus"></span>
-                                <input readonly style="cursor: inherit; width: 30%; font-family: regular;height: 30px;text-align: center;" type="text" value="1" name="qty" min="1" />
-                                <span style="margin: 0; cursor: pointer;" class="qty-add icon-plus"></span>
-                            </div>
-                            <button class="add-to-cart" style="margin-left: -6px;">Agregar al carrito</button>
-                        </li> -->
                         
                     </ul>
                     <span class="arrow icon-arrow-right"></span>
                 </div>
 
+            </div>
+            <div class="section" style="text-align: center;">
+                <h2 style="margin-top: 120px;">Agendamiento</h2>
+                
+                <div id="calendar"></div>
+                
             </div>
             <div class="section" style="text-align: center;">
                 <h2>Nosotros</h2>
@@ -484,14 +299,14 @@
                 <h2>Contacto</h2>
                 
                 <div class="contact-container" style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-                    <form method="POST" action="" style="display: flex; flex-direction: column; margin-top: 20px; width: 220px;">
+                    <form method="POST" action="" style="display: flex; flex-direction: column; margin: 20px; width: 220px;">
                         <input name="name" type="text" placeholder="Nombre" />
                         <input name="phone" type="text" placeholder="Telefono" />
                         <textarea name="message" style="height: 120px;" placeholder="Aqui va tu mensaje"></textarea>
                         <button>Enviar</button>
                     </form>
                     <div>
-                        <div id="map">
+                        <div id="map" style="margin: 20px;">
                             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3607.173489663442!2d-57.555786190006515!3d-25.298374577552735!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x945daf10a8e69b09%3A0x8704b212a3d2dd8a!2sLuison%20Barber!5e0!3m2!1ses!2spy!4v1700697267946!5m2!1ses!2spy" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                         </div>
                     </div>
@@ -500,10 +315,10 @@
             </div>
         </div>
 
-        <script type="text/javascript" src="./js/jquery-3.7.0.min.js"></script>
+        
         <script type="text/javascript" src="./vendors/fullPage.js-master/vendors/easings.js"></script>
         <script type="text/javascript" src="./vendors/fullPage.js-master/dist/fullpage.js"></script>
-
+        
         <script type="text/javascript">
             
             function numberWithCommas(x) {
@@ -695,7 +510,7 @@
                     easing: 'easeInOutCubic',
                     loopTop: true,
                     loopBottom: true,
-                    anchors:['firstPage', 'secondPage', 'thirdPage', 'fourthPage'],
+                    anchors:['firstPage', 'secondPage', 'thirdPage', 'fourthPage', 'fifthPage'],
                     onLeave: function(origin, destination, direction, trigger){
 
                         if(destination.index == 0){
